@@ -1,7 +1,6 @@
 import os
 import logging
 from telegram.ext import Updater
-from telegram.ext import CommandHandler
 
 from app.commands import COMMANDS_HANDLERS
 
@@ -20,8 +19,7 @@ def start_drugs_reminder_jobs():
 
 
 def register_commands_callbacks(dispatcher):
-    for commandHandlerConfig in COMMANDS_HANDLERS:
-        logging.debug('Adding handler for command: %s', commandHandlerConfig.command_name)
-        handler = CommandHandler(commandHandlerConfig.command_name, commandHandlerConfig.handler)
-        dispatcher.add_handler(handler)
-        logging.debug('Handler for %s registered', commandHandlerConfig.command_name)
+    for handler_config in COMMANDS_HANDLERS:
+        logging.debug('Adding handler for command: "%s"', handler_config.handler_name)
+        dispatcher.add_handler(handler_config.handler_instance)
+        logging.debug('Handler for "%s" registered', handler_config.handler_instance)
