@@ -3,7 +3,8 @@ from telegram.ext import CommandHandler
 
 from app.commands.start import start_command_handler
 from app.commands.help import help_command_handler
-from app.commands.add_reminder import add_reminder_conversation_handler
+# from app.commands.add_reminder import add_reminder_conversation_handler
+from app.commands.add_reminder_buttons import add_reminder_conversation_handler
 
 HandlerConfig = namedtuple('HandlerConfig', ['handler_name', 'handler_instance'])
 
