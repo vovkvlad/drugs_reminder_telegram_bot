@@ -1,4 +1,3 @@
-import re
 from telegram import ParseMode, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
     Filters,
@@ -7,6 +6,8 @@ from telegram.ext import (
     ConversationHandler,
     CallbackQueryHandler,
 )
+
+from app.navigation.common_handlers.start_handler import start_buttons
 
 
 TOP_LEVEL_STATES = {
@@ -328,7 +329,12 @@ def abort_interactive(update, context):
 def save_and_exit_interactive(update, context):
     add_reminder(update, context)
 
-    return 'GO_TO_MAIN_MENU'
+    return 'GO_TO_ADD_REMINDER_MENU'
+
+
+def go_to_main_menu(update, context):
+    start_buttons(update, context)
+    return ConversationHandler.END
 
 
 selecting_interactive_data_handlers = [
@@ -361,7 +367,7 @@ interactive_reminder_conversation_handler = ConversationHandler(
     ],
     map_to_parent={
         ConversationHandler.END: 'SELECTING_REMINDER_TYPE',
-        'GO_TO_MAIN_MENU': 'SELECTING_ACTION',
+        'GO_TO_ADD_REMINDER_MENU': 'SELECTING_ACTION',
     },
 )
 
@@ -384,14 +390,21 @@ selecting_action_handlers = [
     CallbackQueryHandler(adding_drug_name, pattern="^DRUG_NAME$"),
     CallbackQueryHandler(show_configured, pattern="^SHOW_CONFIGURED$"),
     CallbackQueryHandler(go_back_from_show_configured, pattern="^GO_BACK_FROM_SHOW_RESULTS"),
+    CallbackQueryHandler(go_to_main_menu, pattern="^ABORT_ADDING_DRUG_REMINDER"),
     reminder_type_conversation_handler,
 ]
 
 add_reminder_conversation_handler = ConversationHandler(
-    entry_points=[CommandHandler('addreminder', add_reminder)],
+    entry_points=[
+        CommandHandler('addreminder', add_reminder),
+        CallbackQueryHandler(add_reminder, pattern="^ADD_NEW_REMINDER$"),
+    ],
     states={
         'SELECTING_ACTION': selecting_action_handlers,
         'DRUG_ADDED': [MessageHandler(Filters.text & ~Filters.command, drug_name_added)],
     },
     fallbacks=[],
+    map_to_parent={
+        ConversationHandler.END: 'MAIN_MENU'
+    },
 )
